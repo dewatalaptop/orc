@@ -436,3 +436,35 @@ DARK BUTTON
   border:1px solid var(--border);
   z-index:1000;
 }
+#err-box{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
+  max-width:480px;
+  background:#1a0000;
+  color:#ffb3b3;
+  border:1px solid #ff4d4d;
+  border-radius:10px;
+  padding:10px;
+  font-size:11px;
+  z-index:9999;
+  display:none;
+}
+
+#err-content{
+  max-height:120px;
+  overflow:auto;
+  margin-bottom:6px;
+  font-family:monospace;
+}
+
+#err-box button{
+  width:100%;
+  padding:6px;
+  background:#ff4d4d;
+  border:none;
+  color:#fff;
+  border-radius:6px;
+}
