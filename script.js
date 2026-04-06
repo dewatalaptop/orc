@@ -415,8 +415,8 @@ function processBulk(){
   saveSession();
 
   inp.value = '';
-  document.getElementById('pp-b').innerHTML = '';
-
+  const pp = document.getElementById('pp-b');
+if(pp) pp.innerHTML = '';
   renderBelanja();
   toast('List diperbarui');
 }
@@ -436,10 +436,58 @@ function toast(msg, type='s'){
   wrap.appendChild(el);
   setTimeout(()=>el.remove(), 2500);
 }
+// ================= MODAL ENGINE =================
+let _modalCb = null;
 
+window.openModal = function(title, msg, onOk) {
+  _modalCb = onOk;
+
+  const mov = document.getElementById('mov');
+  const t = document.getElementById('m-t');
+  const m = document.getElementById('m-m');
+
+  if(t) t.textContent = title;
+  if(m) m.textContent = msg;
+
+  if(mov) mov.classList.add('open');
+};
+
+window.closeModal = function() {
+  const mov = document.getElementById('mov');
+  if(mov) mov.classList.remove('open');
+
+  _modalCb = null;
+};
 // ================= COPY =================
 function copyText(text){
-  navigator.clipboard?.writeText(text)
+  function copyText(text){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text)
+      .then(()=>toast('Disalin'))
+      .catch(()=>fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+
+  document.body.appendChild(ta);
+  ta.select();
+
+  try{
+    document.execCommand('copy');
+    toast('Disalin');
+  } catch {
+    toast('Gagal copy','e');
+  }
+
+  document.body.removeChild(ta);
+}
     .then(()=>toast('Disalin'))
     .catch(()=>toast('Gagal copy','e'));
 }
@@ -510,10 +558,30 @@ function switchTab(name){
   document.getElementById('tab-' + name)?.classList.add('active');
   document.querySelector(`.nb[data-tab="${name}"]`)?.classList.add('active');
 
-  if(name === 'belanja') renderBelanja();
-  if(name === 'penjualan') renderPenjualan();
-  if(name === 'admin') renderAdmin();
+  switch(name){
+    case 'belanja': 
+      renderBelanja(); 
+      break;
+
+    case 'penjualan': 
+      renderPenjualan(); 
+      break;
+
+    case 'admin': 
+      renderAdmin(); 
+      break;
+
+    case 'dashboard': 
+      renderDashboard(); 
+      break;
+
+    case 'validasi': 
+      renderValidasi(); 
+      break;
+  }
 }
+
+ 
 
 // ================= EVENT DELEGATION =================
 function initEvents(){
@@ -534,9 +602,10 @@ function initEvents(){
     }
 
     // ===== nav =====
-    if(e.target.matches('.nb')){
-      switchTab(e.target.dataset.tab);
-    }
+    const navBtn = e.target.closest('.nb');
+if(navBtn){
+  switchTab(navBtn.dataset.tab);
+}
 
   });
 
@@ -601,6 +670,22 @@ function initAdmin(){
    ================================================ */
 
 // ================= PENJUALAN =================
+function renderValidasi(){
+
+  const el = document.getElementById('v-content');
+  const bar = document.getElementById('v-bar');
+
+  if(!el) return;
+
+  if(bar) bar.style.display = 'none';
+
+  el.innerHTML = `
+    <div class="empty">
+      <div class="empty-i">✅</div>
+      <p>Sistem Validasi sedang disiapkan</p>
+    </div>
+  `;
+}
 function processSalesBulk(){
 
   const inp = document.getElementById('p-bulk');
@@ -632,7 +717,8 @@ function processSalesBulk(){
   db.set(K.sales, sales);
 
   inp.value = '';
-  document.getElementById('pp-p').innerHTML = '';
+  const pp = document.getElementById('pp-p');
+if(pp) pp.innerHTML = '';
 
   renderPenjualan();
   toast('Penjualan diproses');
@@ -770,11 +856,11 @@ function initModal(){
   const cancel = document.getElementById('m-cancel');
 
   if(ok){
-    ok.onclick = () => {
-      if(window._modalCb) window._modalCb();
-      closeModal();
-    };
-  }
+  ok.onclick = () => {
+    if(_modalCb) _modalCb(); // ✅ BENAR
+    closeModal();
+  };
+}
 
   if(cancel){
     cancel.onclick = closeModal;
