@@ -297,7 +297,7 @@ function renderBelanja(){
   }
 
   // ================= EMPTY =================
-  if(!_sess.length){
+  if(!_sess || !_sess.length){
     wrap.innerHTML = `
       <div class="empty">
         <div class="empty-i">🛒</div>
@@ -382,7 +382,7 @@ function delItem(id){
 
 // ================= PROCESS BULK =================
 function processBulk(){
-
+toast('Memproses...');
   const inp = document.getElementById('bulk-inp');
   if(!inp) return;
 
@@ -396,7 +396,7 @@ function processBulk(){
     const p = parser.line(line);
     if(!p) return;
 
-    const m = matcher.item(p.name);
+    const m = p.name ? matcher.item(p.name) : null;
 
     _sess.push({
       id: utils.uid(),
@@ -460,6 +460,8 @@ window.closeModal = function() {
 };
 // ================= COPY =================
 function copyText(text){
+  if(!text) return;
+
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text)
       .then(()=>toast('Disalin'))
@@ -485,7 +487,7 @@ function fallbackCopy(text){
     toast('Gagal copy','e');
   }
 
-  document.body.removeChild(ta);
+  document.body.removeChild(ta); // ✅ HANYA SEKALI
 }
 
 
@@ -502,7 +504,7 @@ function clearBelanja(){
 // ================= COPY WA =================
 function copyWA(){
 
-  if(!_sess.length){
+  if(!_sess || !_sess.length){
     toast('List kosong','e');
     return;
   }
@@ -575,7 +577,9 @@ function switchTab(name){
     case 'validasi': 
       renderValidasi(); 
       break;
+      
   }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
  
@@ -600,7 +604,7 @@ function initEvents(){
 
     // ===== nav =====
     const navBtn = e.target.closest('.nb');
-if(navBtn){
+if(navBtn && navBtn.dataset.tab){
   switchTab(navBtn.dataset.tab);
 }
 
@@ -665,7 +669,18 @@ function initAdmin(){
 /* ================================================
    PART 5 – PENJUALAN + DASHBOARD + FINAL INIT
    ================================================ */
+// ================= DATE BINDING =================
+function bindDates(){
+  const today = new Date().toLocaleDateString('id-ID');
 
+  const b = document.getElementById('b-date');
+  const v = document.getElementById('v-date');
+  const p = document.getElementById('p-date');
+
+  if(b) b.textContent = today;
+  if(v) v.textContent = today;
+  if(p) p.textContent = today;
+}
 // ================= PENJUALAN =================
 function renderValidasi(){
 
@@ -869,11 +884,12 @@ function initApp(){
 
   seed();
 
-  initDark();
-  initModal();
+bindDates(); // ✅ TAMBAHKAN INI DI SINI
 
-  initEvents();
-  initAdmin();
+initDark();
+initModal();
+initEvents();
+initAdmin();
 
   // bind penjualan
   document.getElementById('btn-process-sales')
@@ -930,8 +946,7 @@ function initApp(){
     });
 
   // first render
-  renderBelanja();
+switchTab('belanja');
 }
-
 // ================= START =================
 document.addEventListener('DOMContentLoaded', initApp);
