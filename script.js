@@ -255,6 +255,29 @@ function bindGlobalEvents() {
   document.getElementById('mov')?.addEventListener('click', e => {
     if (e.target.id === 'mov') closeModal();
   });
+
+  /* ===============================
+  ✅ TAMBAHKAN INI (DASHBOARD FILTER)
+  =============================== */
+  document.querySelectorAll('[data-dash]').forEach(btn => {
+    btn.onclick = () => {
+      _dashF = btn.dataset.dash;
+
+      document.querySelectorAll('[data-dash]')
+        .forEach(b => b.classList.remove('active'));
+
+      btn.classList.add('active');
+
+      renderDashboard();
+    };
+  });
+}
+
+  document.getElementById('m-cancel')?.addEventListener('click', closeModal);
+
+  document.getElementById('mov')?.addEventListener('click', e => {
+    if (e.target.id === 'mov') closeModal();
+  });
 }
 
 /* ===============================
@@ -1351,6 +1374,21 @@ if (idx >= 0) {
 function bindValidasiEvents() {
   document.getElementById('btn-all-ok')?.addEventListener('click', allOk);
 
+  /* ===============================
+  ✅ TAMBAHKAN INI
+  =============================== */
+  document.getElementById('btn-save-validasi')?.addEventListener('click', () => {
+    toast('Validasi disimpan');
+  });
+
+  document.querySelectorAll('#v-chips .chip')
+    .forEach(chip => {
+      chip.onclick = () => {
+        _vFilter = chip.dataset.filter;
+        renderValidasi();
+      };
+    });
+}
   document.querySelectorAll('#v-chips .chip')
     .forEach(chip => {
       chip.onclick = () => {
