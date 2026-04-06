@@ -6,7 +6,7 @@ PART 1 — CORE + UTILS
 /* ================================================
 1. SCHEMA VERSION
 ================================================ */
-
+alert('JS CONNECTED');
 const APP_VERSION = 2;
 
 (function checkVersion() {
