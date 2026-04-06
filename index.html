@@ -1,181 +1,188 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>Dolan Sawah · Ops v2</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;600&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Font Modern & Readable -->
+  <link href="[https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;600&family=Mulish:wght@400;600;700&display=swap](https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;600&family=Mulish:wght@400;600;700&display=swap)" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body data-theme="dark">
 
-<button id="dkbtn" aria-label="Toggle dark mode">🌙</button>
+  <!-- Floating Dark Mode Toggle -->
+  <button id="dkbtn" aria-label="Toggle dark mode">🌙</button>
 
   <div id="app">
+    <!-- Container untuk Notifikasi -->
     <div id="toasts"></div>
 
-```
-<div id="err-box">
-  <div id="err-content"></div>
-  <button onclick="copyError()">Copy Error</button>
-</div>
-
-<!-- MODAL -->
-<div id="mov" class="modal-overlay" role="dialog" aria-modal="true" tabindex="-1">
-  <div id="mbox">
-    <h3 id="m-t">Konfirmasi</h3>
-    <p id="m-m"></p>
-    <div class="ma">
-      <button class="btn btn-sec" id="m-cancel">Batal</button>
-      <button class="btn btn-red" id="m-ok">Lanjutkan</button>
+    <!-- Kotak Error (Muncul hanya jika terjadi crash) -->
+    <div id="err-box" style="display:none">
+      <div id="err-content"></div>
+      <button onclick="copyError()" class="btn-small">Copy Error</button>
     </div>
-  </div>
-</div>
 
-<!-- TAB: BELANJA -->
-<div id="tab-belanja" class="tab active">
-  <div class="ph">
-    <h1>🛒 Belanja</h1>
-    <span class="badge" id="b-date"></span>
-  </div>
-
-  <div id="fav-sec" style="display:none">
-    <div class="sh">
-      <h3>⚡ Favorit</h3>
-      <button class="btn btn-sec" id="toggle-fav">Sembunyikan</button>
-    </div>
-    <div class="fav-grid" id="fav-grid"></div>
-  </div>
-
-  <div class="card">
-    <div class="ct">⚡ Input Cepat — satu item per baris</div>
-    <div class="ig">
-      <label>Format: nama qty satuan</label>
-      <textarea class="inp" id="bulk-inp"
-        placeholder="ayam dada 5 kg&#10;cabai merah 2 kg&#10;telur 10 pcs&#10;minyak 1 liter"></textarea>
-    </div>
-    <div class="pp" id="pp-b"></div>
-    <div class="br">
-      <button class="btn btn-acc" id="btn-process-bulk">+ Tambah Semua</button>
-      <button class="btn btn-sec" id="btn-load-tpl">📋 Template</button>
-    </div>
-  </div>
-
-  <div id="b-list"></div>
-
-  <div id="b-act" style="display:none">
-    <button class="btn btn-amb btn-full" id="btn-copy-wa">📲 COPY FORMAT WA</button>
-    <div style="height:7px"></div>
-    <div class="br">
-      <button class="btn btn-ghost" id="btn-save-tpl">💾 Simpan Template</button>
-      <button class="btn btn-sec" id="btn-clear-belanja">🗑 Kosongkan</button>
-    </div>
-  </div>
-</div>
-
-<!-- TAB: VALIDASI -->
-<div id="tab-validasi" class="tab">
-  <div class="ph">
-    <h1>✅ Validasi</h1>
-    <span class="badge" id="v-date"></span>
-  </div>
-
-  <div id="v-bar" style="display:none">
-    <div class="br" style="margin-bottom:10px">
-      <button class="btn btn-acc" id="btn-all-ok">✓ Semua Sesuai</button>
-      <button class="btn btn-sec" id="btn-save-validasi">💾 Simpan</button>
-    </div>
-    <div class="chips" id="v-chips">
-      <div class="chip active" data-filter="all">Semua</div>
-      <div class="chip" data-filter="diff">Ada Selisih</div>
-      <div class="chip" data-filter="ok">Sesuai</div>
-    </div>
-  </div>
-
-  <div id="v-content"></div>
-</div>
-
-<!-- TAB: PENJUALAN -->
-<div id="tab-penjualan" class="tab">
-  <div class="ph">
-    <h1>💰 Penjualan</h1>
-    <span class="badge" id="p-date"></span>
-  </div>
-
-  <div id="p-sum" class="card" style="display:none">
-    <div class="sg">
-      <div>
-        <div class="sl">Total Porsi</div>
-        <div class="sv g" id="p-tq">0</div>
-      </div>
-      <div>
-        <div class="sl">Revenue</div>
-        <div class="sv a" id="p-tr">Rp 0</div>
+    <!-- MODAL SISTEM: Untuk konfirmasi Hapus/Simpan -->
+    <div id="mov" class="modal-overlay" role="dialog" aria-modal="true" tabindex="-1">
+      <div id="mbox">
+        <h3 id="m-t">Konfirmasi</h3>
+        <p id="m-m"></p>
+        <div class="ma">
+          <!-- Perbaikan: Menambahkan trigger fungsi closeModal & _modalCb -->
+          <button class="btn btn-sec" id="m-cancel" onclick="closeModal()">Batal</button>
+          <button class="btn btn-red" id="m-ok" onclick="if(_modalCb) _modalCb(); closeModal();">Lanjutkan</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="ct">Input Cepat</div>
-    <div class="ig">
-      <label>Format: nama qty revenue</label>
-      <textarea class="inp" id="p-bulk"
-        placeholder="nasi goreng 10 150000&#10;ayam goreng 5 75000"></textarea>
+    <!-- TAB: BELANJA (Halaman Utama) -->
+    <div id="tab-belanja" class="tab active">
+      <div class="ph">
+        <h1>🛒 Belanja</h1>
+        <span class="badge" id="b-date"></span>
+      </div>
+
+      <!-- Section Favorit (Tampilan dikontrol oleh script) -->
+      <div id="fav-sec">
+        <div class="sh">
+          <h3>⚡ Favorit</h3>
+          <button class="btn-text" id="toggle-fav">Sembunyikan</button>
+        </div>
+        <div class="fav-grid" id="fav-grid">
+          <!-- Tombol favorit akan dirender otomatis oleh renderBelanja() -->
+        </div>
+      </div>
+
+      <!-- Card Input untuk Bulk Copy-Paste -->
+      <div class="card">
+        <div class="ct">⚡ Input Cepat — satu item per baris</div>
+        <div class="ig">
+          <label>Format: nama [spasi] qty [spasi] satuan</label>
+          <textarea class="inp" id="bulk-inp"
+            placeholder="ayam dada 5 kg&#10;cabai merah 2 kg&#10;telur 10 pcs"></textarea>
+        </div>
+        <!-- Preview area: Muncul saat user sedang mengetik -->
+        <div class="pp" id="pp-b"></div> 
+        <div class="br">
+          <button class="btn btn-acc" id="btn-process-bulk">+ Tambah Semua</button>
+          <button class="btn btn-sec" id="btn-load-tpl">📋 Template</button>
+        </div>
+      </div>
+
+      <!-- Area List Belanja yang Terdaftar -->
+      <div id="b-list"></div>
+
+      <!-- Tombol Aksi Bawah (Hanya muncul jika ada item) -->
+      <div id="b-act" style="display:none">
+        <button class="btn btn-amb btn-full" id="btn-copy-wa">📲 COPY FORMAT WA</button>
+        <div style="height:10px"></div>
+        <div class="br">
+          <button class="btn btn-ghost" id="btn-save-tpl">💾 Simpan Template</button>
+          <button class="btn btn-sec" id="btn-clear-belanja">🗑 Kosongkan</button>
+        </div>
+      </div>
     </div>
-    <div class="pp" id="pp-p"></div>
-    <button class="btn btn-acc btn-full" id="btn-process-sales">+ Tambah Semua</button>
-  </div>
 
-  <div id="p-list"></div>
-</div>
-
-<!-- TAB: DASHBOARD -->
-<div id="tab-dashboard" class="tab">
-  <div class="ph">
-    <h1>📊 Dashboard</h1>
-  </div>
-
-  <div class="chips">
-    <div class="chip active" data-dash="today">Hari Ini</div>
-    <div class="chip" data-dash="yesterday">Kemarin</div>
-    <div class="chip" data-dash="week">7 Hari</div>
-  </div>
-
-  <div id="dash"></div>
-</div>
-
-<!-- TAB: ADMIN -->
-<div id="tab-admin" class="tab">
-  <div class="ph">
-    <h1>⚙️ Admin</h1>
-  </div>
-
-  <div id="adm-warn"></div>
-
-  <div class="card">
-    <div class="ct">Kategori</div>
-    <div id="cat-tags"></div>
-    <div class="ri">
-      <input type="text" id="new-cat" class="inp" placeholder="Kategori baru...">
-      <button class="btn btn-acc" id="btn-add-cat">Tambah</button>
+    <!-- TAB: VALIDASI (Pengecekan Barang Datang) -->
+    <div id="tab-validasi" class="tab">
+      <div class="ph">
+        <h1>✅ Validasi</h1>
+        <span class="badge" id="v-date"></span>
+      </div>
+      <div id="v-bar" style="display:none">
+        <div class="br" style="margin-bottom:15px">
+          <button class="btn btn-acc" id="btn-all-ok">✓ Semua Sesuai</button>
+          <button class="btn btn-sec" id="btn-save-validasi">💾 Simpan</button>
+        </div>
+        <div class="chips" id="v-chips">
+          <div class="chip active" data-filter="all">Semua</div>
+          <div class="chip" data-filter="diff">Ada Selisih</div>
+          <div class="chip" data-filter="ok">Sesuai</div>
+        </div>
+      </div>
+      <div id="v-content"></div>
     </div>
-  </div>
-</div>
 
-<!-- NAV -->
-<nav id="bnav">
-  <button class="nb active" data-tab="belanja">🛒</button>
-  <button class="nb" data-tab="validasi">✅</button>
-  <button class="nb" data-tab="penjualan">💰</button>
-  <button class="nb" data-tab="dashboard">📊</button>
-  <button class="nb" data-tab="admin">⚙️</button>
-</nav>
-```
+    <!-- TAB: PENJUALAN (Rekap Kasir) -->
+    <div id="tab-penjualan" class="tab">
+      <div class="ph">
+        <h1>💰 Penjualan</h1>
+        <span class="badge" id="p-date"></span>
+      </div>
 
-  </div>
+      <div id="p-sum" class="card" style="display:none">
+        <div class="sg">
+          <div>
+            <div class="sl">Total Porsi</div>
+            <div class="sv g" id="p-tq">0</div>
+          </div>
+          <div>
+            <div class="sl">Revenue</div>
+            <div class="sv a" id="p-tr">Rp 0</div>
+          </div>
+        </div>
+      </div>
 
+      <div class="card">
+        <div class="ct">Input Cepat Penjualan</div>
+        <div class="ig">
+          <label>Format: nama [spasi] qty [spasi] total_harga</label>
+          <textarea class="inp" id="p-bulk"
+            placeholder="nasi goreng 10 150000&#10;teh manis 5 25000"></textarea>
+        </div>
+        <div class="pp" id="pp-p"></div>
+        <button class="btn btn-acc btn-full" id="btn-process-sales">+ Proses Penjualan</button>
+      </div>
+
+      <div id="p-list"></div>
+    </div>
+
+    <!-- TAB: DASHBOARD (Analisis Data) -->
+    <div id="tab-dashboard" class="tab">
+      <div class="ph">
+        <h1>📊 Dashboard</h1>
+      </div>
+      <div class="chips">
+        <div class="chip active" data-dash="today">Hari Ini</div>
+        <div class="chip" data-dash="yesterday">Kemarin</div>
+        <div class="chip" data-dash="week">7 Hari</div>
+      </div>
+      <div id="dash"></div>
+    </div>
+
+    <!-- TAB: ADMIN (Pengaturan) -->
+    <div id="tab-admin" class="tab">
+      <div class="ph">
+        <h1>⚙️ Admin</h1>
+      </div>
+      <div class="card">
+        <div class="ct">Kelola Kategori</div>
+        <div id="cat-tags" class="tags-container"></div>
+        <div class="ri" style="margin-top:15px">
+          <input type="text" id="new-cat" class="inp" placeholder="Nama kategori...">
+          <button class="btn btn-acc" id="btn-add-cat">Tambah</button>
+        </div>
+      </div>
+      <div class="card">
+          <div class="ct">Data Master</div>
+          <button class="btn btn-sec btn-full" onclick="alert('Fitur Backup segera hadir')">📥 Export JSON</button>
+      </div>
+    </div>
+
+    <!-- NAVIGATION BAR (Fixed at Bottom) -->
+    <nav id="bnav">
+      <button class="nb active" data-tab="belanja">🛒</button>
+      <button class="nb" data-tab="validasi">✅</button>
+      <button class="nb" data-tab="penjualan">💰</button>
+      <button class="nb" data-tab="dashboard">📊</button>
+      <button class="nb" data-tab="admin">⚙️</button>
+    </nav>
+
+  </div> <!-- End #app -->
+
+  <!-- Script utama -->
   <script src="script.js"></script>
 
 </body>
