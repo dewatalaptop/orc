@@ -21,7 +21,8 @@ const db = {
   get: (k, d = []) => {
     try {
       const v = localStorage.getItem(k);
-      return v ? JSON.parse(v) : d;
+      const parsed = v ? JSON.parse(v) : d;
+      return parsed ?? d;
     } catch {
       return d;
     }
@@ -70,6 +71,46 @@ function esc(s) {
 }
 
 /* ===============================
+   SAFE HELPERS
+=============================== */
+
+function safeArr(v){
+  return Array.isArray(v) ? v : [];
+}
+
+function clone(obj){
+  return JSON.parse(JSON.stringify(obj));
+}
+
+/* ===============================
+   CLIPBOARD SAFE
+=============================== */
+
+function copyText(text){
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(()=>toast('Disalin ke WA'))
+      .catch(()=>fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    toast('Disalin (fallback)');
+  } catch {
+    toast('Gagal copy', 'e');
+  }
+  document.body.removeChild(ta);
+}
+
+/* ===============================
    STATS
 =============================== */
 
@@ -78,10 +119,6 @@ function trackUsage(type, name) {
   const key = type + ':' + norm(name);
   s[key] = (s[key] || 0) + 1;
   db.set(K.stats, s);
-}
-
-function getFreq(type, name) {
-  return db.get(K.stats, {})[type + ':' + norm(name)] || 0;
 }
 
 function getTop(type, n = 8) {
@@ -97,7 +134,7 @@ function updateFavs() {
   db.set(K.favs, getTop('item', 10).map(t => t.name));
 }
 /* ===============================
-   SEED (INIT DATA AWAL)
+   SEED (INIT DATA)
 =============================== */
 
 function seed() {
@@ -150,11 +187,11 @@ function seed() {
 }
 
 /* ===============================
-   MATCHING ENGINE
+   MATCHING ENGINE (IMPROVED)
 =============================== */
 
 function matchItem(raw) {
-  const items = db.get(K.mi);
+  const items = safeArr(db.get(K.mi));
   const q = norm(raw);
   if (!q) return null;
 
@@ -166,7 +203,7 @@ function matchItem(raw) {
 }
 
 function matchMenu(raw) {
-  const menus = db.get(K.mm);
+  const menus = safeArr(db.get(K.mm));
   const q = norm(raw);
   if (!q) return null;
 
@@ -178,14 +215,36 @@ function matchMenu(raw) {
 }
 
 /* ===============================
-   PARSER (LEBIH TAHAN ERROR)
+   UNIT NORMALIZATION
+=============================== */
+
+function normUnit(u){
+  u = norm(u);
+
+  const map = {
+    kg:'kg',
+    kilo:'kg',
+    kilogram:'kg',
+    gr:'g',
+    gram:'g',
+    pcs:'pcs',
+    biji:'pcs',
+    buah:'pcs',
+    l:'l',
+    liter:'l'
+  };
+
+  return map[u] || u || 'pcs';
+}
+
+/* ===============================
+   PARSER (UPGRADE)
 =============================== */
 
 function parseLine(line) {
   line = line.trim();
   if (!line) return null;
 
-  // dukung: ayam 5kg / ayam 5 kg
   const match = line.match(/^(.+?)\s+([\d.,]+)\s*([a-zA-Z]*)$/);
 
   if (!match) {
@@ -204,7 +263,7 @@ function parseLine(line) {
     raw: line,
     name: norm(match[1]),
     qty: parseFloat(qty) || 1,
-    unit: norm(match[3] || 'pcs')
+    unit: normUnit(match[3])
   };
 }
 
@@ -234,11 +293,11 @@ function parseSaleLine(line) {
 }
 
 /* ===============================
-   UNKNOWN HANDLER
+   UNKNOWN HANDLER (SAFE)
 =============================== */
 
 function addUnkItem(raw) {
-  const u = db.get(K.ui);
+  const u = safeArr(db.get(K.ui));
   if (u.find(x => norm(x.raw_name) === norm(raw))) return;
 
   u.push({ id: uid(), raw_name: raw, date: today() });
@@ -246,164 +305,14 @@ function addUnkItem(raw) {
 }
 
 function addUnkMenu(raw) {
-  const u = db.get(K.um);
+  const u = safeArr(db.get(K.um));
   if (u.find(x => norm(x.raw_name) === norm(raw))) return;
 
   u.push({ id: uid(), raw_name: raw, date: today() });
   db.set(K.um, u);
 }
 /* ===============================
-   TOAST
-=============================== */
-
-function toast(msg, type = 's', dur = 2500) {
-  const icons = { s: '✓', e: '✕', w: '⚠' };
-
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.innerHTML = `<span>${icons[type] || 'ℹ'}</span> ${msg}`;
-
-  const wrap = document.getElementById('toasts');
-  wrap.appendChild(el);
-
-  setTimeout(() => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(-6px)';
-    setTimeout(() => el.remove(), 300);
-  }, dur);
-}
-
-/* ===============================
-   MODAL
-=============================== */
-
-function openModal(title, msg, cb) {
-  document.getElementById('m-t').textContent = title;
-  document.getElementById('m-m').textContent = msg;
-
-  const modal = document.getElementById('mov');
-  modal.classList.add('open');
-
-  const okBtn = document.getElementById('m-ok');
-
-  okBtn.onclick = () => {
-    closeModal();
-    cb && cb();
-  };
-}
-
-function closeModal() {
-  document.getElementById('mov').classList.remove('open');
-}
-
-/* ===============================
-   DARK MODE
-=============================== */
-
-let _dark = true;
-
-function toggleDark() {
-  _dark = !_dark;
-
-  if (_dark) {
-    document.body.removeAttribute('data-light');
-  } else {
-    document.body.setAttribute('data-light', 'true');
-  }
-
-  document.getElementById('dkbtn').textContent = _dark ? '🌙' : '☀️';
-
-  localStorage.setItem('dark', _dark ? '1' : '0');
-}
-
-function initDark() {
-  const saved = localStorage.getItem('dark');
-
-  _dark = saved === null ? true : saved === '1';
-
-  if (!_dark) {
-    document.body.setAttribute('data-light', 'true');
-  }
-
-  document.getElementById('dkbtn').textContent = _dark ? '🌙' : '☀️';
-}
-
-/* ===============================
-   NAVIGATION
-=============================== */
-
-let _tab = 'belanja';
-let _dashF = 'today';
-let _vf = 'all';
-
-function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
-
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelector(`.nb[data-tab="${tab}"]`).classList.add('active');
-
-  _tab = tab;
-
-  const map = {
-    belanja: renderBelanja,
-    validasi: renderValidasi,
-    penjualan: renderPenjualan,
-    dashboard: renderDashboard,
-    admin: renderAdmin
-  };
-
-  if (map[tab]) map[tab]();
-}
-
-/* ===============================
-   EVENT BINDING GLOBAL
-=============================== */
-
-function bindGlobalEvents() {
-
-  // DARK MODE
-  document.getElementById('dkbtn').addEventListener('click', toggleDark);
-
-  // NAV
-  document.querySelectorAll('.nb').forEach(btn => {
-    btn.addEventListener('click', () => {
-      switchTab(btn.dataset.tab);
-    });
-  });
-
-  // MODAL CANCEL
-  document.getElementById('m-cancel').addEventListener('click', closeModal);
-
-  // FILTER VALIDASI
-  document.querySelectorAll('#v-chips .chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      _vf = chip.dataset.filter;
-
-      document.querySelectorAll('#v-chips .chip')
-        .forEach(c => c.classList.remove('active'));
-
-      chip.classList.add('active');
-      renderValidasi();
-    });
-  });
-
-  // DASH FILTER
-  document.querySelectorAll('[data-dash]').forEach(chip => {
-    chip.addEventListener('click', () => {
-      _dashF = chip.dataset.dash;
-
-      document.querySelectorAll('[data-dash]')
-        .forEach(c => c.classList.remove('active'));
-
-      chip.classList.add('active');
-      renderDashboard();
-    });
-  });
-
-}
-/* ===============================
-   BELANJA MODULE
+   BELANJA MODULE (UPGRADE)
 =============================== */
 
 let _sess = [];
@@ -420,9 +329,28 @@ function groupByCat(items) {
   return g;
 }
 
+/* ---------- AUTO MERGE (NEW CORE FIX) ---------- */
+function mergeItems(arr){
+  const map = {};
+
+  arr.forEach(it => {
+    const key = norm(it.matched_name) + '|' + it.unit;
+
+    if (!map[key]) {
+      map[key] = { ...it };
+    } else {
+      map[key].qty += it.qty;
+    }
+  });
+
+  return Object.values(map);
+}
+
 /* ---------- PREVIEW ---------- */
 function previewBelanja(text) {
   const prev = document.getElementById('pp-b');
+  if (!prev) return;
+
   const lines = text.split('\n').filter(l => l.trim());
 
   if (!lines.length) {
@@ -452,9 +380,11 @@ function previewBelanja(text) {
   prev.classList.add('show');
 }
 
-/* ---------- PROCESS ---------- */
+/* ---------- PROCESS (FIXED + MERGE) ---------- */
 function processBulk() {
   const ta = document.getElementById('bulk-inp');
+  if (!ta) return;
+
   const lines = ta.value.split('\n').filter(l => l.trim());
 
   if (!lines.length) {
@@ -493,6 +423,9 @@ function processBulk() {
     return;
   }
 
+  /* 🔥 AUTO MERGE APPLY */
+  _sess = mergeItems(_sess);
+
   db.set(K.sess, _sess);
 
   ta.value = '';
@@ -524,6 +457,8 @@ function addFavItem(name) {
     date: today()
   });
 
+  _sess = mergeItems(_sess);
+
   db.set(K.sess, _sess);
 
   trackUsage('item', m ? m.name : name);
@@ -548,7 +483,7 @@ function clearBelanja() {
   });
 }
 
-/* ---------- TEMPLATE ---------- */
+/* ---------- TEMPLATE (FIX CLONE BUG) ---------- */
 function saveTpl() {
   _sess = db.get(K.sess);
 
@@ -557,8 +492,9 @@ function saveTpl() {
     return;
   }
 
-  const tpl = db.get(K.tpl);
-  tpl.push({ id: uid(), items: _sess });
+  const tpl = safeArr(db.get(K.tpl));
+
+  tpl.push({ id: uid(), items: clone(_sess) });
 
   if (tpl.length > 7) tpl.shift();
 
@@ -567,7 +503,7 @@ function saveTpl() {
 }
 
 function loadTpl() {
-  const tpl = db.get(K.tpl);
+  const tpl = safeArr(db.get(K.tpl));
 
   if (!tpl.length) {
     toast('Belum ada template', 'w');
@@ -576,7 +512,7 @@ function loadTpl() {
 
   const last = tpl[tpl.length - 1];
 
-  const text = last.items
+  const text = safeArr(last.items)
     .map(i => `${i.matched_name} ${i.qty} ${i.unit}`)
     .join('\n');
 
@@ -585,9 +521,9 @@ function loadTpl() {
   previewBelanja(text);
 }
 
-/* ---------- COPY WA ---------- */
+/* ---------- COPY WA (FIXED) ---------- */
 function copyWA() {
-  _sess = db.get(K.sess);
+  _sess = safeArr(db.get(K.sess));
 
   if (!_sess.length) {
     toast('Kosong', 'e');
@@ -606,25 +542,27 @@ function copyWA() {
     text += '\n';
   });
 
-  const prs = db.get(K.pr);
-  prs.push({ id: uid(), date: today(), items: _sess });
+  const prs = safeArr(db.get(K.pr));
+  prs.push({ id: uid(), date: today(), items: clone(_sess) });
   db.set(K.pr, prs);
 
-  navigator.clipboard.writeText(text);
-  toast('Disalin ke WA');
+  copyText(text);
 }
 
 /* ---------- RENDER ---------- */
 function renderBelanja() {
-  document.getElementById('b-date').textContent = fmtDate();
+  const dateEl = document.getElementById('b-date');
+  if (dateEl) dateEl.textContent = fmtDate();
 
-  _sess = db.get(K.sess);
+  _sess = safeArr(db.get(K.sess));
 
   const wrap = document.getElementById('b-list');
   const act = document.getElementById('b-act');
-  const favs = db.get(K.favs);
 
-  // FAVORITES
+  if (!wrap || !act) return;
+
+  const favs = safeArr(db.get(K.favs));
+
   const favSec = document.getElementById('fav-sec');
   const favGrid = document.getElementById('fav-grid');
 
@@ -637,7 +575,6 @@ function renderBelanja() {
     favSec.style.display = 'none';
   }
 
-  // EMPTY
   if (!_sess.length) {
     wrap.innerHTML = `<div class="empty"><div class="empty-i">🛒</div><p>Belum ada data</p></div>`;
     act.style.display = 'none';
@@ -654,9 +591,7 @@ function renderBelanja() {
     items.forEach(it => {
       html += `
       <div class="ir">
-        <div style="flex:1">
-          <div>${esc(it.matched_name)}</div>
-        </div>
+        <div style="flex:1">${esc(it.matched_name)}</div>
         <span>${it.qty}${it.unit}</span>
         <button data-del="${it.id}">✕</button>
       </div>`;
@@ -668,7 +603,6 @@ function renderBelanja() {
   wrap.innerHTML = html;
   act.style.display = 'block';
 
-  /* EVENT BIND */
   document.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', () => delItem(btn.dataset.del));
   });
@@ -678,37 +612,38 @@ function renderBelanja() {
   });
 }
 
-/* ---------- EVENT BIND BELANJA ---------- */
+/* ---------- EVENT BIND ---------- */
 function bindBelanjaEvents() {
-
   document.getElementById('bulk-inp')
-    .addEventListener('input', e => previewBelanja(e.target.value));
+    ?.addEventListener('input', e => previewBelanja(e.target.value));
 
   document.getElementById('btn-process-bulk')
-    .addEventListener('click', processBulk);
+    ?.addEventListener('click', processBulk);
 
   document.getElementById('btn-load-tpl')
-    .addEventListener('click', loadTpl);
+    ?.addEventListener('click', loadTpl);
 
   document.getElementById('btn-save-tpl')
-    .addEventListener('click', saveTpl);
+    ?.addEventListener('click', saveTpl);
 
   document.getElementById('btn-copy-wa')
-    .addEventListener('click', copyWA);
+    ?.addEventListener('click', copyWA);
 
   document.getElementById('btn-clear-belanja')
-    .addEventListener('click', clearBelanja);
+    ?.addEventListener('click', clearBelanja);
 
   document.getElementById('toggle-fav')
-    .addEventListener('click', toggleFav);
+    ?.addEventListener('click', toggleFav);
 }
 /* ===============================
-   PENJUALAN MODULE
+   PENJUALAN MODULE (FIXED)
 =============================== */
 
 /* ---------- PREVIEW ---------- */
 function previewSales(text) {
   const prev = document.getElementById('pp-p');
+  if (!prev) return;
+
   const lines = text.split('\n').filter(l => l.trim());
 
   if (!lines.length) {
@@ -738,9 +673,11 @@ function previewSales(text) {
   prev.classList.add('show');
 }
 
-/* ---------- PROCESS BULK ---------- */
+/* ---------- PROCESS ---------- */
 function processSalesBulk() {
   const ta = document.getElementById('p-bulk');
+  if (!ta) return;
+
   const lines = ta.value.split('\n').filter(l => l.trim());
 
   if (!lines.length) {
@@ -748,7 +685,7 @@ function processSalesBulk() {
     return;
   }
 
-  const arr = db.get(K.sr);
+  const arr = safeArr(db.get(K.sr));
   let added = 0;
 
   lines.forEach(line => {
@@ -777,7 +714,7 @@ function processSalesBulk() {
   db.set(K.sr, arr);
 
   ta.value = '';
-  document.getElementById('pp-p').classList.remove('show');
+  document.getElementById('pp-p')?.classList.remove('show');
 
   if (added) {
     toast(`${added} penjualan ditambahkan`);
@@ -790,12 +727,16 @@ function processSalesBulk() {
 
 /* ---------- RENDER ---------- */
 function renderPenjualan() {
-  document.getElementById('p-date').textContent = fmtDate();
+  const dateEl = document.getElementById('p-date');
+  if (dateEl) dateEl.textContent = fmtDate();
 
-  const sales = db.get(K.sr).filter(s => s.date === today());
+  const sales = safeArr(db.get(K.sr))
+    .filter(s => s.date === today());
 
   const listEl = document.getElementById('p-list');
   const sum = document.getElementById('p-sum');
+
+  if (!listEl || !sum) return;
 
   if (!sales.length) {
     listEl.innerHTML = `<div class="empty"><div class="empty-i">💰</div><p>Belum ada penjualan</p></div>`;
@@ -803,8 +744,8 @@ function renderPenjualan() {
     return;
   }
 
-  const totalQty = sales.reduce((s, r) => s + r.qty, 0);
-  const totalRev = sales.reduce((s, r) => s + r.revenue, 0);
+  const totalQty = sales.reduce((s, r) => s + (r.qty || 0), 0);
+  const totalRev = sales.reduce((s, r) => s + (r.revenue || 0), 0);
 
   document.getElementById('p-tq').textContent = totalQty;
   document.getElementById('p-tr').textContent = fmtRp(totalRev);
@@ -820,8 +761,7 @@ function renderPenjualan() {
       map[key] = {
         name: key,
         qty: 0,
-        rev: 0,
-        unk: s.is_unknown
+        rev: 0
       };
     }
 
@@ -853,63 +793,33 @@ function renderPenjualan() {
 
 /* ---------- EVENT BIND ---------- */
 function bindPenjualanEvents() {
-
   document.getElementById('p-bulk')
-    .addEventListener('input', e => previewSales(e.target.value));
+    ?.addEventListener('input', e => previewSales(e.target.value));
 
   document.getElementById('btn-process-sales')
-    .addEventListener('click', processSalesBulk);
-
-}
-/* ===============================
-   VALIDASI MODULE
-=============================== */
-
-function renderValidasi() {
-  document.getElementById('v-date').textContent = fmtDate();
-
-  const prs = db.get(K.pr);
-  const latest = prs[prs.length - 1];
-
-  const content = document.getElementById('v-content');
-  const vbar = document.getElementById('v-bar');
-
-  if (!latest) {
-    content.innerHTML = `<div class="empty"><p>Belum ada data</p></div>`;
-    vbar.style.display = 'none';
-    return;
-  }
-
-  vbar.style.display = 'block';
-
-  let html = '';
-
-  latest.items.forEach(it => {
-    html += `
-    <div class="card">
-      <div>${esc(it.matched_name)}</div>
-      <div style="font-size:12px;color:var(--text3)">
-        ${it.qty} ${it.unit}
-      </div>
-    </div>`;
-  });
-
-  content.innerHTML = html;
+    ?.addEventListener('click', processSalesBulk);
 }
 
 /* ===============================
-   DASHBOARD MODULE
+   DASHBOARD MODULE (FIXED)
 =============================== */
 
 function renderDashboard() {
 
   const dates = getDates();
 
-  const sales = db.get(K.sr).filter(s => dates.includes(s.date));
-  const prs = db.get(K.pr).filter(p => dates.includes(p.date));
+  const sales = safeArr(db.get(K.sr))
+    .filter(s => dates.includes(s.date));
 
-  const totalRev = sales.reduce((s, r) => s + r.revenue, 0);
-  const totalItems = prs.flatMap(p => p.items).length;
+  const prs = safeArr(db.get(K.pr))
+    .filter(p => dates.includes(p.date));
+
+  const totalRev = sales.reduce((s, r) => s + (r.revenue || 0), 0);
+
+  /* 🔥 FIX: no crash flatMap */
+  const totalItems = prs
+    .flatMap(p => safeArr(p.items))
+    .length;
 
   let html = `
   <div class="card">
@@ -938,9 +848,47 @@ function getDates() {
   }
   return arr;
 }
+/* ===============================
+   VALIDASI MODULE (SAFE)
+=============================== */
+
+function renderValidasi() {
+  const dateEl = document.getElementById('v-date');
+  if (dateEl) dateEl.textContent = fmtDate();
+
+  const prs = safeArr(db.get(K.pr));
+  const latest = prs[prs.length - 1];
+
+  const content = document.getElementById('v-content');
+  const vbar = document.getElementById('v-bar');
+
+  if (!content || !vbar) return;
+
+  if (!latest || !latest.items) {
+    content.innerHTML = `<div class="empty"><p>Belum ada data</p></div>`;
+    vbar.style.display = 'none';
+    return;
+  }
+
+  vbar.style.display = 'block';
+
+  let html = '';
+
+  latest.items.forEach(it => {
+    html += `
+    <div class="card">
+      <div>${esc(it.matched_name)}</div>
+      <div style="font-size:12px;color:var(--text3)">
+        ${it.qty} ${it.unit}
+      </div>
+    </div>`;
+  });
+
+  content.innerHTML = html;
+}
 
 /* ===============================
-   ADMIN MODULE
+   ADMIN MODULE (SAFE)
 =============================== */
 
 function renderAdmin() {
@@ -948,9 +896,17 @@ function renderAdmin() {
 }
 
 function renderCats() {
-  const cats = db.get(K.cats);
+  const cats = safeArr(db.get(K.cats));
 
-  document.getElementById('cat-tags').innerHTML =
+  const el = document.getElementById('cat-tags');
+  if (!el) return;
+
+  if (!cats.length) {
+    el.innerHTML = `<div class="empty"><p>Belum ada kategori</p></div>`;
+    return;
+  }
+
+  el.innerHTML =
     cats.map((c, i) => `
       <span class="tag">
         ${esc(c)}
@@ -965,6 +921,8 @@ function renderCats() {
 
 function addCat() {
   const inp = document.getElementById('new-cat');
+  if (!inp) return;
+
   const name = inp.value.trim();
 
   if (!name) {
@@ -972,7 +930,7 @@ function addCat() {
     return;
   }
 
-  const cats = db.get(K.cats);
+  const cats = safeArr(db.get(K.cats));
 
   if (cats.includes(name)) {
     toast('Sudah ada', 'w');
@@ -988,7 +946,9 @@ function addCat() {
 }
 
 function delCat(i) {
-  const cats = db.get(K.cats);
+  const cats = safeArr(db.get(K.cats));
+
+  if (!cats[i]) return;
 
   openModal('Hapus?', cats[i], () => {
     cats.splice(i, 1);
@@ -998,7 +958,7 @@ function delCat(i) {
 }
 
 /* ===============================
-   INIT APP
+   INIT APP (FINAL SAFE)
 =============================== */
 
 function initApp() {
@@ -1006,22 +966,22 @@ function initApp() {
   seed();
   initDark();
 
-  // Bind global
+  /* BIND GLOBAL */
   bindGlobalEvents();
   bindBelanjaEvents();
   bindPenjualanEvents();
 
-  // ADMIN
+  /* ADMIN */
   document.getElementById('btn-add-cat')
-    .addEventListener('click', addCat);
+    ?.addEventListener('click', addCat);
 
-  // Initial render
+  /* INITIAL RENDER */
   renderBelanja();
 
-  // Set tanggal
-  document.getElementById('b-date').textContent = fmtDate();
-  document.getElementById('v-date').textContent = fmtDate();
-  document.getElementById('p-date').textContent = fmtDate();
+  /* SET DATE */
+  document.getElementById('b-date')?.textContent = fmtDate();
+  document.getElementById('v-date')?.textContent = fmtDate();
+  document.getElementById('p-date')?.textContent = fmtDate();
 }
 
 /* ===============================
