@@ -460,7 +460,6 @@ window.closeModal = function() {
 };
 // ================= COPY =================
 function copyText(text){
-  function copyText(text){
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text)
       .then(()=>toast('Disalin'))
@@ -488,9 +487,7 @@ function fallbackCopy(text){
 
   document.body.removeChild(ta);
 }
-    .then(()=>toast('Disalin'))
-    .catch(()=>toast('Gagal copy','e'));
-}
+
 
 // ================= CLEAR BELANJA =================
 function clearBelanja(){
