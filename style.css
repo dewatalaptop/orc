@@ -391,6 +391,8 @@ TOAST
 MODAL
 ================================================ */
 #mov{
+  pointer-events:none;   /* TAMBAH INI */
+}
   opacity:0;
   visibility:hidden;
   position:fixed;
@@ -406,6 +408,8 @@ MODAL
 }
 
 #mov.open{
+  pointer-events:auto;   /* TAMBAH INI */
+}
   opacity:1;
   visibility:visible;
 }
