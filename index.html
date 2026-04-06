@@ -15,13 +15,13 @@
 <body>
 
   <!-- Dark mode -->
-  <button id="dkbtn">🌙</button>
+  <button id="dkbtn" aria-label="Toggle dark mode">🌙</button>
 
   <div id="app">
     <div id="toasts"></div>
 
     <!-- MODAL -->
-    <div id="mov" class="modal-overlay">
+    <div id="mov" class="modal-overlay" role="dialog" aria-modal="true">
       <div id="mbox">
         <h3 id="m-t">Konfirmasi</h3>
         <p id="m-m"></p>
