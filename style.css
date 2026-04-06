@@ -391,16 +391,23 @@ TOAST
 MODAL
 ================================================ */
 #mov{
-  display:none;
+  opacity:0;
+  visibility:hidden;
   position:fixed;
   inset:0;
   background:rgba(0,0,0,.5);
   z-index:5000;
+
+  display:flex;
   align-items:flex-end;
+  justify-content:center;
+
+  transition:.2s;
 }
 
 #mov.open{
-  display:flex;
+  opacity:1;
+  visibility:visible;
 }
 
 #mbox{
