@@ -8,12 +8,13 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;600&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- External CSS -->
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <!-- Dark mode toggle -->
+
+  <!-- Dark mode -->
   <button id="dkbtn">🌙</button>
 
   <div id="app">
@@ -41,13 +42,14 @@
       <div id="fav-sec" style="display:none">
         <div class="sh">
           <h3>⚡ Favorit</h3>
-          <button class="btn btn-xs btn-sec" id="toggle-fav">Sembunyikan</button>
+          <button class="btn btn-sec" id="toggle-fav">Sembunyikan</button>
         </div>
         <div class="fav-grid" id="fav-grid"></div>
       </div>
 
       <div class="card">
         <div class="ct">⚡ Input Cepat — satu item per baris</div>
+
         <div class="ig">
           <label>Format: nama qty satuan</label>
           <textarea class="inp" id="bulk-inp" placeholder="ayam dada 5 kg&#10;cabai merah 2 kg&#10;telur 10 pcs&#10;bawang putih 1 kg"></textarea>
@@ -65,7 +67,9 @@
 
       <div id="b-act" style="display:none">
         <button class="btn btn-amb btn-full" id="btn-copy-wa">📲 COPY FORMAT WA</button>
+
         <div style="height:7px"></div>
+
         <div class="br">
           <button class="btn btn-ghost" id="btn-save-tpl">💾 Simpan Template</button>
           <button class="btn btn-sec" id="btn-clear-belanja">🗑 Kosongkan</button>
@@ -86,6 +90,7 @@
           <button class="btn btn-sec" id="btn-save-validasi">💾 Simpan</button>
         </div>
 
+        <!-- FIX: memastikan element ini ada untuk JS -->
         <div class="chips" id="v-chips">
           <div class="chip active" data-filter="all">Semua</div>
           <div class="chip" data-filter="diff">Ada Selisih</div>
@@ -118,6 +123,7 @@
 
       <div class="card">
         <div class="ct">Input Cepat</div>
+
         <div class="ig">
           <label>Format: nama qty revenue</label>
           <textarea class="inp" id="p-bulk"></textarea>
@@ -173,9 +179,11 @@
       <button class="nb" data-tab="dashboard">📊</button>
       <button class="nb" data-tab="admin">⚙️</button>
     </nav>
+
   </div>
 
-  <!-- External JS -->
+  <!-- JS -->
   <script src="script.js"></script>
+
 </body>
 </html>
