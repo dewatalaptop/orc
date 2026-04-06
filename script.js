@@ -6,7 +6,28 @@ PART 1 — CORE + UTILS
 /* ================================================
 1. SCHEMA VERSION
 ================================================ */
-alert('JS CONNECTED');
+window.onerror = function(message, source, lineno, colno, error) {
+  const box = document.getElementById('err-box');
+  const content = document.getElementById('err-content');
+
+  const msg = `
+ERROR:
+${message}
+
+FILE:
+${source}
+
+LINE:
+${lineno}:${colno}
+`;
+
+  console.error(msg);
+
+  if (box && content) {
+    content.textContent = msg;
+    box.style.display = 'block';
+  }
+};
 const APP_VERSION = 2;
 
 (function checkVersion() {
@@ -296,6 +317,27 @@ PART 3 — CLIPBOARD + STATS + MATCHING
 CLIPBOARD
 =============================== */
 function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast('Disalin ke clipboard'))
+      .catch(() => {
+        fallbackCopy(text);
+        toast('Clipboard fallback digunakan', 'w');
+      });
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+/* TAMBAHKAN DI SINI */
+function copyError(){
+  const text = document.getElementById('err-content')?.textContent;
+  if (!text) return;
+
+  navigator.clipboard.writeText(text)
+    .then(() => alert('Error copied'))
+    .catch(() => alert('Copy gagal'));
+}
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text)
       .then(() => toast('Disalin ke clipboard'))
