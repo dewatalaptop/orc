@@ -1,8 +1,6 @@
 /* ===============================
-   ORIGINAL CSS (TIDAK DIUBAH)
-=============================== */
-
-/* ===== ROOT ===== */
+   ROOT (THEME SYSTEM)
+=============================== /
 :root{
   --bg:#111410;--bg2:#191c17;--bg3:#20241e;
   --surface:#252922;--surf2:#2e332b;--surf3:#383d34;
@@ -25,7 +23,7 @@
   --sh2:0 4px 32px rgba(0,0,0,.5);
 }
 
-/* LIGHT MODE */
+/ LIGHT MODE /
 [data-light]{
   --bg:#F5F3EE;--bg2:#EDEBE6;--bg3:#E6E3DC;
   --surface:#FFF;--surf2:#F0EDE8;--surf3:#E8E5DE;
@@ -42,10 +40,12 @@
   --sh2:0 4px 24px rgba(0,0,0,.12);
 }
 
-/* ===== RESET ===== */
+/ ===============================
+RESET
+=============================== */
 *,
 *::before,
-*::after{
+::after{
   box-sizing:border-box;
   margin:0;
   padding:0;
@@ -61,7 +61,9 @@ html,body{
   transition:background .2s,color .2s;
 }
 
-/* ===== APP ===== */
+/ ===============================
+APP
+=============================== /
 #app{
   max-width:480px;
   margin:0 auto;
@@ -69,7 +71,9 @@ html,body{
   min-height:100vh;
 }
 
-/* ===== TAB ===== */
+/ ===============================
+TAB
+=============================== /
 .tab{
   display:none;
   padding:12px 14px calc(var(--nav) + 18px);
@@ -86,7 +90,9 @@ html,body{
   to{opacity:1;transform:none}
 }
 
-/* ===== NAV ===== */
+/ ===============================
+NAV
+=============================== /
 #bnav{
   position:fixed;
   bottom:0;
@@ -111,7 +117,7 @@ html,body{
   background:none;
   cursor:pointer;
   color:var(--text3);
-  transition:all .15s;
+  transition:.15s;
 }
 
 .nb.active{
@@ -119,7 +125,9 @@ html,body{
   transform:scale(1.1);
 }
 
-/* ===== HEADER ===== */
+/ ===============================
+HEADER
+=============================== /
 .ph{
   display:flex;
   align-items:center;
@@ -143,7 +151,9 @@ html,body{
   font-family:var(--mono);
 }
 
-/* ===== CARD ===== */
+/ ===============================
+CARD
+=============================== /
 .card{
   background:var(--surface);
   border-radius:var(--r);
@@ -162,7 +172,9 @@ html,body{
   font-family:var(--mono);
 }
 
-/* ===== INPUT ===== */
+/ ===============================
+INPUT
+=============================== /
 .inp{
   width:100%;
   padding:10px 13px;
@@ -185,7 +197,9 @@ textarea.inp{
   font-family:var(--mono);
 }
 
-/* ===== BUTTON ===== */
+/ ===============================
+BUTTON
+=============================== /
 .btn{
   display:inline-flex;
   align-items:center;
@@ -196,7 +210,7 @@ textarea.inp{
   font-weight:700;
   border:none;
   cursor:pointer;
-  transition:all .15s;
+  transition:.15s;
 }
 
 .btn:active{
@@ -207,15 +221,14 @@ textarea.inp{
 .btn-sec{background:var(--surf2);color:var(--text)}
 .btn-amb{background:var(--amber);color:#1a1200}
 .btn-red{background:var(--red);color:#fff}
+
 .btn-ghost{
   background:none;
   border:1px solid var(--acc);
   color:var(--acc);
 }
 
-.btn-full{
-  width:100%;
-}
+.btn-full{width:100%}
 
 .br{
   display:flex;
@@ -224,7 +237,9 @@ textarea.inp{
   margin-top:10px;
 }
 
-/* ===== CHIP ===== */
+/ ===============================
+CHIPS
+=============================== /
 .chips{
   display:flex;
   gap:6px;
@@ -248,7 +263,9 @@ textarea.inp{
   color:#0a1208;
 }
 
-/* ===== EMPTY ===== */
+/ ===============================
+EMPTY STATE
+=============================== /
 .empty{
   text-align:center;
   padding:36px 20px;
@@ -260,7 +277,9 @@ textarea.inp{
   margin-bottom:8px;
 }
 
-/* ===== FAVORITES ===== */
+/ ===============================
+FAVORITES
+=============================== /
 .fav-grid{
   display:flex;
   flex-wrap:wrap;
@@ -283,7 +302,9 @@ textarea.inp{
   color:var(--acc);
 }
 
-/* ===== PREVIEW ===== */
+/ ===============================
+PREVIEW
+=============================== /
 .pp{
   background:var(--bg3);
   border-radius:var(--rs);
@@ -297,7 +318,91 @@ textarea.inp{
   display:block;
 }
 
-/* ===== TOAST ===== */
+.ppr{
+  font-size:12px;
+  margin-bottom:4px;
+  font-family:var(--mono);
+}
+
+/ ===============================
+LIST ITEM (BELANJA)
+=============================== /
+.ir{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 6px;
+  border-bottom:1px dashed var(--border2);
+}
+
+.ir:last-child{
+  border-bottom:none;
+}
+
+/ ===============================
+SALES ROW
+=============================== /
+.sr{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 6px;
+  border-bottom:1px dashed var(--border2);
+}
+
+.sr:last-child{
+  border-bottom:none;
+}
+
+/ ===============================
+SUMMARY GRID
+=============================== /
+.sg{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.sl{
+  font-size:10px;
+  color:var(--text3);
+  font-family:var(--mono);
+}
+
+.sv{
+  font-size:16px;
+  font-weight:800;
+}
+
+.sv.g{color:var(--acc)}
+.sv.a{color:var(--amber)}
+
+/ ===============================
+TAG (ADMIN)
+=============================== /
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:20px;
+  background:var(--surf2);
+  border:1px solid var(--border2);
+  font-size:11px;
+  margin:3px;
+}
+
+.tag button{
+  background:none;
+  border:none;
+  color:var(--red);
+  cursor:pointer;
+  font-size:12px;
+}
+
+/ ===============================
+TOAST
+=============================== /
 #toasts{
   position:fixed;
   top:14px;
@@ -317,7 +422,9 @@ textarea.inp{
   font-weight:700;
 }
 
-/* ===== MODAL ===== */
+/ ===============================
+MODAL
+=============================== /
 #mov{
   display:none;
   position:fixed;
@@ -340,7 +447,9 @@ textarea.inp{
   max-width:480px;
 }
 
-/* ===== DARK BUTTON ===== */
+/ ===============================
+DARK BUTTON
+=============================== */
 #dkbtn{
   position:fixed;
   top:14px;
@@ -353,70 +462,3 @@ textarea.inp{
   border:1px solid var(--border2);
   cursor:pointer;
 }
-
-
-/* ===============================
-   PATCH (TAMBAHAN TANPA HAPUS)
-=============================== */
-
-/* LIST ROW */
-.ir, .sr{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 8px;
-  border-bottom:1px solid var(--border);
-}
-.ir:last-child,.sr:last-child{border-bottom:none;}
-
-.ir button{
-  background:none;
-  border:none;
-  color:var(--red);
-  cursor:pointer;
-}
-
-/* MODAL ACTION */
-.ma{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;}
-
-/* SECTION HEADER */
-.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-
-/* INPUT GROUP */
-.ig{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
-.ig label{font-size:11px;color:var(--text3);}
-
-/* INLINE ROW */
-.ri{display:flex;gap:8px;margin-top:10px;}
-.ri .inp{flex:1;}
-
-/* SUMMARY */
-.sg{display:flex;justify-content:space-between;}
-.sl{font-size:11px;color:var(--text3);}
-.sv{font-weight:700;font-size:16px;}
-.sv.g{color:var(--acc);}
-.sv.a{color:var(--amber);}
-
-/* ADMIN TAG */
-.tag{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:5px 10px;
-  background:var(--surf2);
-  border-radius:20px;
-  font-size:11px;
-  margin:3px;
-}
-.tag button{
-  background:none;
-  border:none;
-  color:var(--red);
-  cursor:pointer;
-}
-
-/* PREVIEW ROW */
-.ppr{font-size:12px;padding:4px 0;}
-
-/* SMALL BTN */
-.btn-xs{padding:6px 10px;font-size:11px;}
