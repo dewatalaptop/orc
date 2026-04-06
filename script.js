@@ -1496,7 +1496,7 @@ function initApp() {
       if (e.key === 'Enter') addCat();
     });
 
-  renderBelanja();
+  switchTab('belanja');
 }
 
 document.addEventListener('DOMContentLoaded', initApp);
