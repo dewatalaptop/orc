@@ -2,10 +2,11 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#121212">
   <title>Dolan Sawah · Ops v2</title>
 
-  <!-- ✅ FIXED GOOGLE FONT -->
+  <!-- ✅ GOOGLE FONTS -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=JetBrains+Mono:wght@400;600&family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
@@ -14,33 +15,34 @@
 <body>
 
   <!-- Dark Mode Toggle -->
-  <button type="button" id="dkbtn" aria-label="Toggle dark mode">🌙</button>
+  <button type="button" id="dkbtn" aria-label="Ganti Tema">🌙</button>
 
   <div id="app">
 
-    <!-- Toast -->
+    <!-- Toast Notification Container -->
     <div id="toasts"></div>
 
-    <!-- Error Box -->
-    <div id="err-box" style="display:none">
-      <div id="err-content"></div>
-      <pre id="err-stack" style="font-size:10px;opacity:0.7"></pre>
-      <button type="button" onclick="copyError()" class="btn-small">Copy Error</button>
+    <!-- Error Box (Muncul hanya jika JS Crash) -->
+    <div id="err-box" class="card" style="display:none; border: 1px solid var(--red); margin-bottom: 15px;">
+      <div id="err-content" style="font-weight: bold; color: var(--red); margin-bottom: 5px;"></div>
+      <pre id="err-stack" style="font-size:10px; opacity:0.7; overflow-x: auto; white-space: pre-wrap;"></pre>
+      <button type="button" onclick="copyError()" class="btn btn-sec btn-small" style="margin-top:10px">Salin Error</button>
     </div>
 
-    <!-- MODAL -->
-    <div id="mov" class="modal-overlay" role="dialog" aria-modal="true" tabindex="-1">
+    <!-- MODAL OVERLAY -->
+    <div id="mov" class="modal-overlay" role="dialog" aria-modal="true">
       <div id="mbox">
         <h3 id="m-t">Konfirmasi</h3>
         <p id="m-m"></p>
         <div class="ma">
-          <button type="button" class="btn btn-sec" id="m-cancel" onclick="closeModal()">Batal</button>
+          <!-- ID diubah agar sinkron dengan script.js tanpa onclick inline berlebih -->
+          <button type="button" class="btn btn-sec" id="m-cancel">Batal</button>
           <button type="button" class="btn btn-red" id="m-ok">Lanjutkan</button>
         </div>
       </div>
     </div>
 
-    <!-- TAB BELANJA -->
+    <!-- ================= TAB: BELANJA ================= -->
     <div id="tab-belanja" class="tab active">
       <div class="ph">
         <h1>🛒 Belanja</h1>
@@ -48,8 +50,8 @@
       </div>
 
       <div id="fav-sec">
-        <div class="sh">
-          <h3>⚡ Favorit</h3>
+        <div class="sh" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="font-family: var(--font-head);">⚡ Favorit</h3>
           <button type="button" class="btn-text" id="toggle-fav">Sembunyikan</button>
         </div>
         <div class="fav-grid" id="fav-grid"></div>
@@ -58,32 +60,34 @@
       <div class="card">
         <div class="ct">⚡ Input Cepat — satu item per baris</div>
         <div class="ig">
-          <label>Format: nama qty satuan</label>
-          <textarea class="inp" id="bulk-inp"
+          <label>Format: <code style="font-family: var(--font-mono);">nama qty satuan</code></label>
+          <textarea class="inp" id="bulk-inp" rows="3"
             placeholder="ayam dada 5 kg&#10;cabai merah 2 kg&#10;telur 10 pcs"></textarea>
         </div>
 
         <div class="pp" id="pp-b"></div>
 
-        <div class="br">
-          <button type="button" class="btn btn-acc" id="btn-process-bulk">+ Tambah Semua</button>
-          <button type="button" class="btn btn-sec" id="btn-load-tpl">📋 Template</button>
+        <div class="br" style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-acc" id="btn-process-bulk" style="flex: 2;">+ Tambah Semua</button>
+          <button type="button" class="btn btn-sec" id="btn-load-tpl" style="flex: 1;">📋 Template</button>
         </div>
       </div>
 
+      <!-- Container List Belanja -->
       <div id="b-list"></div>
 
-      <div id="b-act" style="display:none">
+      <!-- Action Footer Belanja -->
+      <div id="b-act" style="display:none; margin-top: 15px;">
         <button type="button" class="btn btn-amb btn-full" id="btn-copy-wa">📲 COPY FORMAT WA</button>
         <div style="height:10px"></div>
-        <div class="br">
-          <button type="button" class="btn btn-ghost" id="btn-save-tpl">💾 Simpan Template</button>
-          <button type="button" class="btn btn-sec" id="btn-clear-belanja">🗑 Kosongkan</button>
+        <div class="br" style="display: flex; gap: 10px;">
+          <button type="button" class="btn btn-sec" id="btn-save-tpl" style="flex:1">💾 Simpan Tpl</button>
+          <button type="button" class="btn btn-red" id="btn-clear-belanja" style="flex:1">🗑 Kosongkan</button>
         </div>
       </div>
     </div>
 
-    <!-- TAB VALIDASI -->
+    <!-- ================= TAB: VALIDASI ================= -->
     <div id="tab-validasi" class="tab">
       <div class="ph">
         <h1>✅ Validasi</h1>
@@ -91,9 +95,9 @@
       </div>
 
       <div id="v-bar" style="display:none">
-        <div class="br" style="margin-bottom:15px">
-          <button type="button" class="btn btn-acc" id="btn-all-ok">✓ Semua Sesuai</button>
-          <button type="button" class="btn btn-sec" id="btn-save-validasi">💾 Simpan</button>
+        <div class="br" style="margin-bottom:15px; display: flex; gap: 10px;">
+          <button type="button" class="btn btn-acc" id="btn-all-ok" style="flex:1">✓ Semua Sesuai</button>
+          <button type="button" class="btn btn-sec" id="btn-save-validasi" style="flex:1">💾 Simpan</button>
         </div>
 
         <div class="chips" id="v-chips">
@@ -106,7 +110,7 @@
       <div id="v-content"></div>
     </div>
 
-    <!-- TAB PENJUALAN -->
+    <!-- ================= TAB: PENJUALAN ================= -->
     <div id="tab-penjualan" class="tab">
       <div class="ph">
         <h1>💰 Penjualan</h1>
@@ -117,11 +121,11 @@
         <div class="sg">
           <div>
             <div class="sl">Total Porsi</div>
-            <div class="sv g" id="p-tq">0</div>
+            <div class="sv" id="p-tq" style="color: var(--acc);">0</div>
           </div>
           <div>
             <div class="sl">Revenue</div>
-            <div class="sv a" id="p-tr">Rp 0</div>
+            <div class="sv" id="p-tr" style="color: var(--amber);">Rp 0</div>
           </div>
         </div>
       </div>
@@ -129,8 +133,8 @@
       <div class="card">
         <div class="ct">Input Cepat Penjualan</div>
         <div class="ig">
-          <label>Format: nama qty total_harga</label>
-          <textarea class="inp" id="p-bulk"
+          <label>Format: <code style="font-family: var(--font-mono);">nama qty total_harga</code></label>
+          <textarea class="inp" id="p-bulk" rows="3"
             placeholder="nasi goreng 10 150000&#10;teh manis 5 25000"></textarea>
         </div>
 
@@ -142,13 +146,13 @@
       <div id="p-list"></div>
     </div>
 
-    <!-- TAB DASHBOARD -->
+    <!-- ================= TAB: DASHBOARD ================= -->
     <div id="tab-dashboard" class="tab">
       <div class="ph">
         <h1>📊 Dashboard</h1>
       </div>
 
-      <div class="chips">
+      <div class="chips" style="margin-bottom: 20px;">
         <div class="chip active" data-dash="today">Hari Ini</div>
         <div class="chip" data-dash="yesterday">Kemarin</div>
         <div class="chip" data-dash="week">7 Hari</div>
@@ -157,7 +161,7 @@
       <div id="dash"></div>
     </div>
 
-    <!-- TAB ADMIN -->
+    <!-- ================= TAB: ADMIN ================= -->
     <div id="tab-admin" class="tab">
       <div class="ph">
         <h1>⚙️ Admin</h1>
@@ -165,44 +169,51 @@
 
       <div class="card">
         <div class="ct">Kelola Kategori</div>
-        <div id="cat-tags" class="tags-container"></div>
+        <div id="cat-tags" class="tags-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;"></div>
 
-        <div class="ri" style="margin-top:15px">
-          <input type="text" id="new-cat" class="inp" placeholder="Nama kategori...">
+        <!-- Perbaikan layout input kategori -->
+        <div class="ri" style="display: flex; gap: 10px;">
+          <input type="text" id="new-cat" class="inp" placeholder="Nama kategori..." style="flex: 1;">
           <button type="button" class="btn btn-acc" id="btn-add-cat">Tambah</button>
         </div>
       </div>
 
       <div class="card">
         <div class="ct">Data Master</div>
-        <button type="button" class="btn btn-sec btn-full">📥 Export JSON</button>
+        <div class="br" style="display: flex; gap: 10px;">
+           <button type="button" class="btn btn-sec btn-full">📥 Export JSON</button>
+           <button type="button" class="btn btn-sec btn-full" style="border-color: var(--red); color: var(--red);">🔥 Reset Data</button>
+        </div>
       </div>
     </div>
 
-    <!-- NAVIGATION -->
+    <!-- NAVIGATION BAR -->
     <nav id="bnav">
-      <button type="button" class="nb active" data-tab="belanja">🛒</button>
-      <button type="button" class="nb" data-tab="validasi">✅</button>
-      <button type="button" class="nb" data-tab="penjualan">💰</button>
-      <button type="button" class="nb" data-tab="dashboard">📊</button>
-      <button type="button" class="nb" data-tab="admin">⚙️</button>
+      <button type="button" class="nb active" data-tab="belanja" aria-label="Tab Belanja">🛒</button>
+      <button type="button" class="nb" data-tab="validasi" aria-label="Tab Validasi">✅</button>
+      <button type="button" class="nb" data-tab="penjualan" aria-label="Tab Penjualan">💰</button>
+      <button type="button" class="nb" data-tab="dashboard" aria-label="Tab Dashboard">📊</button>
+      <button type="button" class="nb" data-tab="admin" aria-label="Tab Admin">⚙️</button>
     </nav>
 
   </div>
 
-  <!-- SCRIPT -->
+  <!-- MAIN SCRIPT -->
   <script src="script.js"></script>
 
-  <!-- FAILSAFE -->
+  <!-- FAILSAFE: Cek jika script gagal load -->
   <script>
-    if (typeof initApp === 'undefined') {
-      document.body.innerHTML = `
-        <div style="padding:20px;font-family:sans-serif">
-          <h2>⚠️ Script gagal dimuat</h2>
-          <p>Periksa file <b>script.js</b></p>
-        </div>
-      `;
-    }
+    window.addEventListener('load', () => {
+      if (typeof initApp === 'undefined') {
+        document.body.insertAdjacentHTML('afterbegin', `
+          <div style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; padding:40px; font-family:sans-serif; text-align:center;">
+            <h2 style="color:red">⚠️ System Crash</h2>
+            <p>File <b>script.js</b> tidak ditemukan atau rusak.</p>
+            <button onclick="location.reload()" style="padding:10px 20px; background:#10b981; color:white; border:none; border-radius:8px;">Muat Ulang</button>
+          </div>
+        `);
+      }
+    });
   </script>
 
 </body>
