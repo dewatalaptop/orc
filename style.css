@@ -1,3 +1,7 @@
+/* ===============================
+   ORIGINAL CSS (TIDAK DIUBAH)
+=============================== */
+
 /* ===== ROOT ===== */
 :root{
   --bg:#111410;--bg2:#191c17;--bg3:#20241e;
@@ -349,3 +353,70 @@ textarea.inp{
   border:1px solid var(--border2);
   cursor:pointer;
 }
+
+
+/* ===============================
+   PATCH (TAMBAHAN TANPA HAPUS)
+=============================== */
+
+/* LIST ROW */
+.ir, .sr{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 8px;
+  border-bottom:1px solid var(--border);
+}
+.ir:last-child,.sr:last-child{border-bottom:none;}
+
+.ir button{
+  background:none;
+  border:none;
+  color:var(--red);
+  cursor:pointer;
+}
+
+/* MODAL ACTION */
+.ma{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;}
+
+/* SECTION HEADER */
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+
+/* INPUT GROUP */
+.ig{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+.ig label{font-size:11px;color:var(--text3);}
+
+/* INLINE ROW */
+.ri{display:flex;gap:8px;margin-top:10px;}
+.ri .inp{flex:1;}
+
+/* SUMMARY */
+.sg{display:flex;justify-content:space-between;}
+.sl{font-size:11px;color:var(--text3);}
+.sv{font-weight:700;font-size:16px;}
+.sv.g{color:var(--acc);}
+.sv.a{color:var(--amber);}
+
+/* ADMIN TAG */
+.tag{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 10px;
+  background:var(--surf2);
+  border-radius:20px;
+  font-size:11px;
+  margin:3px;
+}
+.tag button{
+  background:none;
+  border:none;
+  color:var(--red);
+  cursor:pointer;
+}
+
+/* PREVIEW ROW */
+.ppr{font-size:12px;padding:4px 0;}
+
+/* SMALL BTN */
+.btn-xs{padding:6px 10px;font-size:11px;}
