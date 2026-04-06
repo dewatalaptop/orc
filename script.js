@@ -174,6 +174,7 @@ function openModal(title, msg, onOk) {
   if (mm) mm.textContent = msg;
 
   mov.classList.add('open');
+  mov.focus();
 }
 
 function closeModal() {
@@ -199,7 +200,13 @@ function initDark() {
     }
   }
 
-  apply(localStorage.getItem('ds_theme') === 'light');
+  const saved = localStorage.getItem('ds_theme');
+
+apply(
+  saved
+    ? saved === 'light'
+    : window.matchMedia('(prefers-color-scheme: light)').matches
+);
 
   if (!btn) return;
 
@@ -256,9 +263,7 @@ function bindGlobalEvents() {
     if (e.target.id === 'mov') closeModal();
   });
 
-  /* ===============================
-  ✅ TAMBAHKAN INI (DASHBOARD FILTER)
-  =============================== */
+  /* DASHBOARD FILTER */
   document.querySelectorAll('[data-dash]').forEach(btn => {
     btn.onclick = () => {
       _dashF = btn.dataset.dash;
@@ -270,13 +275,6 @@ function bindGlobalEvents() {
 
       renderDashboard();
     };
-  });
-}
-
-  document.getElementById('m-cancel')?.addEventListener('click', closeModal);
-
-  document.getElementById('mov')?.addEventListener('click', e => {
-    if (e.target.id === 'mov') closeModal();
   });
 }
 
@@ -681,7 +679,7 @@ function processBulk() {
   if (pp) pp.classList.remove('show');
 
   updateFavs();
-  renderBelanja();
+  switchTab('belanja');
 
   toast(added + ' item ditambahkan');
 }
@@ -692,7 +690,7 @@ FAVORITES
 
 function toggleFav() {
   _favOpen = !_favOpen;
-  renderBelanja();
+  switchTab('belanja');
 }
 
 function addFavItem(name) {
@@ -1374,21 +1372,10 @@ if (idx >= 0) {
 function bindValidasiEvents() {
   document.getElementById('btn-all-ok')?.addEventListener('click', allOk);
 
-  /* ===============================
-  ✅ TAMBAHKAN INI
-  =============================== */
   document.getElementById('btn-save-validasi')?.addEventListener('click', () => {
     toast('Validasi disimpan');
   });
 
-  document.querySelectorAll('#v-chips .chip')
-    .forEach(chip => {
-      chip.onclick = () => {
-        _vFilter = chip.dataset.filter;
-        renderValidasi();
-      };
-    });
-}
   document.querySelectorAll('#v-chips .chip')
     .forEach(chip => {
       chip.onclick = () => {
