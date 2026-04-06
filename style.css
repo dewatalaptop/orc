@@ -93,6 +93,7 @@ APP
   margin:0 auto;
   min-height:100vh;
   position:relative;
+  z-index:1; /* ⬅️ TAMBAHKAN DI SINI */
 }
 
 /* ================================================
@@ -391,8 +392,6 @@ TOAST
 MODAL
 ================================================ */
 #mov{
-  pointer-events:none;   /* TAMBAH INI */
-}
   opacity:0;
   visibility:hidden;
   position:fixed;
@@ -405,13 +404,14 @@ MODAL
   justify-content:center;
 
   transition:.2s;
+
+  pointer-events:none; /* penting */
 }
 
 #mov.open{
-  pointer-events:auto;   /* TAMBAH INI */
-}
   opacity:1;
   visibility:visible;
+  pointer-events:auto; /* aktif saat terbuka */
 }
 
 #mbox{
